@@ -1,0 +1,33 @@
+#1
+
+services:
+  nifi:
+    containername: nifiinstance
+    image: apache/nifi:latest
+    ports:
+      - "8080:8080"
+    environment:
+      - NIFIWEBHTTPPORT=8080
+      - SINGLEUSERCREDENTIALSUSERNAME=admin
+      - SINGLEUSERCREDENTIALSPASSWORD=admin123
+    volumes:
+      - ./nifi/conf:/opt/nifi/conf
+      - ./nifi/state:/data/nifi/state
+      - ./nifi/flowfile:/opt/nifi/flowfilerepository
+      - ./nifi/inputdata:/data/nifi/inputdata
+      - ./nifi/outputdata:/data/nifi/outputdata
+    deploy:
+      resources:
+        limits:
+          memory: 4g
+    networks:
+      - nifibridge
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/nifi"]
+      interval: 20s
+      timeout: 5s
+      retries: 5
+
+networks:
+  nifibridge:
+    driver: bridge
